@@ -12,6 +12,19 @@ content only, which is what makes it the top of the precedence ladder. Its
 `robots.txt` explicitly allows `ClaudeBot`, `GPTBot`, and `PerplexityBot`, so
 automated reading is invited rather than tolerated.
 
+The site publishes an official machine index at `https://docs.riscv.org/llms.txt`
+(about 44 KB, 392 links, 27 versioned spec families). It is the fastest way to
+enumerate what exists and at which version, and it is published for exactly this
+kind of automated reading. Note the links contain a doubled slash
+(`/reference//home/index.html`), which resolves normally.
+
+One caveat on the site's name. It calls itself the "Ratified Specifications
+Library", and everything in it is ratified today, but it also carries a
+"Specifications Under Development" section. That section is an empty placeholder
+at the time of writing. Do not assume forever that a page's presence on this site
+proves ratified status: confirm status from the ratified index, the wiki, or the
+manual's preface table.
+
 ## URL scheme
 
 Three shapes matter:

@@ -12,7 +12,9 @@ each one is authoritative for something different. Using the wrong one produces 
 confident wrong answer, so route the question before you answer it.
 
 1. **Ratified prose — docs.riscv.org.** The "RISC-V Ratified Specifications
-   Library", published by RISC-V International. It holds ratified content only.
+   Library", published by RISC-V International. Everything in it is ratified
+   today, though it carries an empty "Specifications Under Development" section,
+   so confirm status rather than inferring it from the site alone.
    Authoritative for meaning, rules, and compliance.
 2. **Machine-readable ISA data — UDB.** A local clone of `riscv-unified-db`.
    Authoritative for instruction encodings, CSR bit layouts, field types, and
