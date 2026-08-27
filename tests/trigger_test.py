@@ -67,10 +67,14 @@ CASES = [
         "id": "out-of-scope",
         "category": "Scope guard",
         "prompt": "How much does RISC-V International membership cost per year?",
-        "skill_expected": False,
-        "must_contain": [],
-        "must_not_contain": [],
-        "note": "Mentions RISC-V but is not a specification question.",
+        # skill_expected None means "either is acceptable". Consulting the skill
+        # and then correctly declining is the behaviour its Scope limits section
+        # asks for, so grade the redirect, not the trigger.
+        "skill_expected": None,
+        "must_contain": ["riscv.org/member"],
+        "must_not_contain": ["docs.riscv.org"],
+        "note": "Mentions RISC-V but is not a specification question. Must send "
+        "the user to riscv.org and must not attribute pricing to the spec library.",
     },
     {
         "id": "routing-psabi",
@@ -95,36 +99,47 @@ def run_case(case: dict, outdir: pathlib.Path, timeout: int) -> dict:
         "--allowedTools", *ALLOWED,
     ]
     start = time.time()
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        raw = proc.stdout
-    except subprocess.TimeoutExpired:
-        return {**case, "error": f"timed out after {timeout}s", "skill_used": None}
-
     answer, cost, turns, denials = "", None, None, []
     tools: list[str] = []
     skill_used = False
 
-    for line in raw.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            ev = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if ev.get("type") == "assistant":
-            for block in ev.get("message", {}).get("content", []) or []:
-                if block.get("type") == "tool_use":
-                    tools.append(block.get("name", "?"))
-                    blob = json.dumps(block.get("input", {}))
-                    if block.get("name") == "Skill" or any(m in blob for m in SKILL_MARKERS):
-                        skill_used = True
-        elif ev.get("type") == "result":
-            answer = ev.get("result") or ""
-            cost = ev.get("total_cost_usd")
-            turns = ev.get("num_turns")
-            denials = ev.get("permission_denials") or []
+    # Stream the events rather than buffering the whole session. A case can run
+    # for minutes, and silence is indistinguishable from a hang.
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    timed_out = False
+    try:
+        for line in proc.stdout:  # type: ignore[union-attr]
+            if time.time() - start > timeout:
+                timed_out = True
+                proc.kill()
+                break
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if ev.get("type") == "assistant":
+                for block in ev.get("message", {}).get("content", []) or []:
+                    if block.get("type") == "tool_use":
+                        name = block.get("name", "?")
+                        tools.append(name)
+                        blob = json.dumps(block.get("input", {}))
+                        if name == "Skill" or any(m in blob for m in SKILL_MARKERS):
+                            skill_used = True
+                            name += " *"
+                        print(f"      {int(time.time() - start):>3}s  {name}", flush=True)
+            elif ev.get("type") == "result":
+                answer = ev.get("result") or ""
+                cost = ev.get("total_cost_usd")
+                turns = ev.get("num_turns")
+                denials = ev.get("permission_denials") or []
+    finally:
+        proc.wait(timeout=10)
+
+    if timed_out:
+        return {**case, "error": f"timed out after {timeout}s", "skill_used": None}
 
     if any(m in answer for m in SKILL_MARKERS):
         skill_used = True
@@ -132,7 +147,8 @@ def run_case(case: dict, outdir: pathlib.Path, timeout: int) -> dict:
     low = answer.lower()
     missing = [s for s in case["must_contain"] if s.lower() not in low]
     present = [s for s in case["must_not_contain"] if s.lower() in low]
-    trigger_ok = skill_used == case["skill_expected"]
+    expected = case["skill_expected"]
+    trigger_ok = True if expected is None else (skill_used == expected)
     passed = trigger_ok and not missing and not present
 
     (outdir / f"{case['id']}.txt").write_text(answer)
