@@ -419,7 +419,14 @@ def main() -> int:
     p_fetch.add_argument("slug")
     p_fetch.add_argument("--all", action="store_true", help="follow chapter links, not just the index")
     p_fetch.add_argument("--version", help="pin an explicit version folder, e.g. v3.0")
-    p_fetch.add_argument("--limit", type=int, default=0, help="stop after N pages")
+    p_fetch.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="stop after N pages. Follows the spec's own nav order, which starts "
+        "with front matter, so this is a smoke test rather than a useful subset. "
+        "Use --all for real work.",
+    )
     p_fetch.add_argument("--delay", type=float, default=0.3, help="seconds between requests")
 
     p_search = sub.add_parser("search", help="regex search the local cache")
@@ -440,6 +447,18 @@ def main() -> int:
         return handler(args, manifest)
     except KeyboardInterrupt:
         return 130
+    except (RuntimeError, OSError) as exc:
+        # Reaching the network is the normal failure here. Degrade with a usable
+        # next step instead of a traceback: the cache may already hold the answer.
+        print(f"error: {exc}", file=sys.stderr)
+        print(
+            "If you are offline, use the local cache instead:\n"
+            "  riscv_docs.py status          # what is already cached\n"
+            "  riscv_docs.py search PATTERN  # search it\n"
+            "Answers from cache may be out of date. Say so when you use them.",
+            file=sys.stderr,
+        )
+        return 1
 
 
 if __name__ == "__main__":
