@@ -1,0 +1,33 @@
+MIT License
+
+Copyright (c) 2026 Akif Ejaz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+This skill fetches and caches specification content that it does not own:
+
+* RISC-V specifications published at https://docs.riscv.org are copyright
+  RISC-V International and licensed CC-BY-4.0.
+* The RISC-V Unified Database (https://github.com/riscv/riscv-unified-db) is
+  licensed BSD-3-Clause-Clear, with CC-BY-4.0 documentation prose.
+
+No specification text is redistributed in this repository. The bundled script
+retrieves it at runtime into a local cache on the user's machine.

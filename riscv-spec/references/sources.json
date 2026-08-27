@@ -1,0 +1,234 @@
+{
+  "_comment": "Manifest of ratified RISC-V specifications published at docs.riscv.org. Versions are NOT stored here on purpose: they are discovered at runtime from each spec's redirect stub, so this file never goes stale. 'udb' says whether the local UDB clone also models this content: full, partial, or none. 'repo' is null where the upstream repository was not verified.",
+  "base_url": "https://docs.riscv.org/reference",
+  "index_page": "https://docs.riscv.org/reference/home/index.html",
+  "ratified_index": "https://riscv.org/specifications/ratified/",
+  "ratified_but_unpublished": "https://riscv.atlassian.net/wiki/spaces/HOME/pages/16154732/Ratified+Extensions",
+  "announcements_feed": "https://riscv.org/feed/",
+  "specs": [
+    {
+      "slug": "isa",
+      "title": "RISC-V Instruction Set Manual (Unprivileged and Privileged)",
+      "category": "Core Architecture",
+      "repo": "https://github.com/riscv/riscv-isa-manual",
+      "udb": "full",
+      "index": ["unpriv/unpriv-index.html", "priv/priv-index.html"]
+    },
+    {
+      "slug": "rva23",
+      "title": "RVA23 Profiles",
+      "category": "Profiles",
+      "repo": "https://github.com/riscv/riscv-profiles",
+      "udb": "full",
+      "index": ["rva23-profiles.html"]
+    },
+    {
+      "slug": "rvb23",
+      "title": "RVB23 Profiles",
+      "category": "Profiles",
+      "repo": "https://github.com/riscv/riscv-profiles",
+      "udb": "full",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "rva20-rvi20-rva22",
+      "title": "RVA20, RVI20 and RVA22 Profiles",
+      "category": "Profiles",
+      "repo": "https://github.com/riscv/riscv-profiles",
+      "udb": "full",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "sbi",
+      "title": "Supervisor Binary Interface (SBI)",
+      "category": "Platform Software",
+      "repo": "https://github.com/riscv-non-isa/riscv-sbi-doc",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "abi",
+      "title": "ELF psABI (calling convention and ELF tooling)",
+      "category": "Application Enablement",
+      "repo": "https://github.com/riscv-non-isa/riscv-elf-psabi-doc",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "debug",
+      "title": "Debug Specification",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv/riscv-debug-spec",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "aia",
+      "title": "Advanced Interrupt Architecture (AIA)",
+      "category": "System Architecture",
+      "repo": "https://github.com/riscv/riscv-aia",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "iommu",
+      "title": "IOMMU Architecture",
+      "category": "System Architecture",
+      "repo": "https://github.com/riscv-non-isa/riscv-iommu",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "plic",
+      "title": "Platform-Level Interrupt Controller (PLIC)",
+      "category": "System Architecture",
+      "repo": "https://github.com/riscv/riscv-plic-spec",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "cbqri",
+      "title": "Capacity and Bandwidth QoS Register Interface",
+      "category": "System Architecture",
+      "repo": "https://github.com/riscv-non-isa/riscv-cbqri",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "rqsc",
+      "title": "Quality of Service Controller",
+      "category": "System Architecture",
+      "repo": null,
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "server-soc",
+      "title": "Server SoC Specification",
+      "category": "Platform",
+      "repo": "https://github.com/riscv-non-isa/server-soc",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "server-platform",
+      "title": "Server Platform Specification",
+      "category": "Platform",
+      "repo": "https://github.com/riscv-non-isa/riscv-server-platform",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "brs",
+      "title": "Boot and Runtime Services (BRS)",
+      "category": "Platform Software",
+      "repo": "https://github.com/riscv-non-isa/riscv-brs",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "semihosting",
+      "title": "Semihosting",
+      "category": "Platform Software",
+      "repo": "https://github.com/riscv-non-isa/riscv-semihosting",
+      "udb": "partial",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "rpmi",
+      "title": "Platform Management Interface (RPMI)",
+      "category": "Platform Software",
+      "repo": null,
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "uefi",
+      "title": "UEFI Protocol",
+      "category": "Platform Software",
+      "repo": null,
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "acpi-ffh",
+      "title": "ACPI Functional Fixed Hardware (FFH)",
+      "category": "Platform Software",
+      "repo": "https://github.com/riscv-non-isa/riscv-acpi-ffh",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "acpi-rimt",
+      "title": "ACPI RISC-V IO Mapping Table (RIMT)",
+      "category": "Platform Software",
+      "repo": "https://github.com/riscv-non-isa/riscv-acpi-rimt",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "e-trace",
+      "title": "Efficient Trace (E-Trace)",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/riscv-trace-spec",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "nexus-trace",
+      "title": "Nexus-Based Trace",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/tg-nexus-trace",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "trace-encap",
+      "title": "Trace Data Encapsulation",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/e-trace-encap",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "trace-connectors",
+      "title": "Trace Connectors",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/tg-nexus-trace",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "trace-control-interface",
+      "title": "Trace Control Interface",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/tg-nexus-trace",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "ras-eri",
+      "title": "RAS Error Record Interface (ERI)",
+      "category": "Debug, Trace and RAS",
+      "repo": "https://github.com/riscv-non-isa/riscv-ras-eri",
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "vector-c-intrinsics",
+      "title": "Vector C Intrinsics",
+      "category": "Application Enablement",
+      "repo": null,
+      "udb": "none",
+      "index": ["index.html"]
+    },
+    {
+      "slug": "glossary",
+      "title": "RISC-V Glossary",
+      "category": "Reference",
+      "repo": null,
+      "udb": "none",
+      "index": ["index.html"]
+    }
+  ]
+}
