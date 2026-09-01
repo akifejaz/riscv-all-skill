@@ -1,14 +1,21 @@
 # Your LLM is confidently wrong about RISC-V. Here's the fix.
 
-Ask your assistant one question:
+Give your assistant a real debugging problem, the kind you hit during bring-up:
 
-> Is the Zalasr extension ratified?
+> My RV64 core reads `mstatus.SD` as 0 while `mstatus.FS` is Dirty (`0b11`).
+> Spike agrees with my core. Is my core spec-compliant?
 
-Then check the answer against your own copy of the manual. If that copy is older than January 2026, it has no Zalasr chapter. Your toolchain probably rejects the name too. A careful assistant reads the manual, finds nothing, and tells you that Zalasr is not ratified.
+Most assistants answer the question you asked. Many will agree with you, because you told them the reference simulator agrees, and that is strong evidence.
 
-That answer is wrong. RISC-V International ratified Zalasr in October 2025.
+A correct answer refuses your premise twice.
 
-The assistant invented nothing. It read a real document and drew a fair conclusion from it. The document was simply not the right source. This is the shape of most wrong answers about RISC-V. The model is not careless. It reads one source when the question needs four.
+First, the core is not compliant. The privileged specification defines `SD` as a read-only summary bit, set when `FS`, `XS` or `VS` reads Dirty. One escape exists. If all three fields are read-only zero, `SD` stays zero forever. Your core implements F, and the specification states that when F is implemented, `FS` shall not be read-only zero. The escape does not apply, so `FS==0b11` forces `SD` to 1.
+
+Second, Spike does not agree with you. Spike computes the bit in `adjust_sd()`, in `riscv/csrs.cc`, and sets it whenever `FS`, `VS` or `XS` reads Dirty.
+
+Then comes the part you actually needed. On RV64, `SD` is bit 63. On RV32 it is bit 31. A test that masks `0x80000000` on an RV64 core reads a reserved bit that is always zero. One bug explains both symptoms, including why Spike looked like it agreed. Spike's own source carries the warning in a comment: "the SD bit moves when XLEN changes".
+
+The assistant that agreed with you did not lie. It reasoned from what you gave it, with no way to read the specification text or the simulator source. This is the shape of most wrong answers about RISC-V. The model is not careless. It reads one source, or none, when a correct answer often needs four.
 
 I want to show you why that happens, and what a correct lookup process looks like. At the end I will show you a tool that does it, but the process matters more than the tool.
 
@@ -22,7 +29,7 @@ Most of us say "check the spec" as if one file answers everything. In practice y
 
 **The non-ISA specifications** cover SBI, the psABI, debug, trace, IOMMU, AIA, PLIC, and the platform documents. UDB does not model these at all. Only docs.riscv.org answers them.
 
-**The ratification records** close a gap the other three leave open. RISC-V ratifies an extension first and publishes it later. During that window the extension is genuinely ratified and genuinely missing from every manual. The Ratified Extensions wiki lists exactly those cases. Zalasr sat in that window.
+**The ratification records** close a gap the other three leave open. RISC-V ratifies an extension first and publishes it later. During that window the extension is genuinely ratified and genuinely missing from every manual. The Ratified Extensions wiki lists exactly those cases. Zalasr is the current example. RISC-V ratified it in October 2025, and any manual older than January 2026 has no chapter for it. Ask a model whether Zalasr is ratified, and a manual lookup answers no. The manual is not wrong. It is simply not the source that answers that question.
 
 Everything else is evidence, not truth. Spike, QEMU, GCC, LLVM, and your own RTL each describe one implementation. When a tool disagrees with the specification, the tool is the suspect.
 
@@ -105,12 +112,7 @@ Which integer registers are callee-saved in the standard RISC-V calling conventi
 In the RISC-V IOMMU spec, what is the device directory table and how is it walked?
 ```
 
-```
-My RV64 core reads mstatus.SD as 0 while mstatus.FS is Dirty, and Spike agrees.
-Is my core compliant?
-```
-
-That last one is the interesting case. The correct response does not accept your premise. It checks the rule, reads what Spike actually does, and points out that `SD` is bit 63 on RV64 and bit 31 on RV32. A test that masks `0x80000000` on RV64 reads a reserved bit that is always zero. The specification is the reference, and the tools are the suspects.
+The debugging question from the opening belongs in this list too. It is the case where a good answer has to argue with you.
 
 ### What an answer looks like
 
