@@ -128,11 +128,48 @@ Three sources agree. The one that disagrees gets named instead of quietly droppe
 
 Judge each answer on two things. Does it carry a versioned URL or a file path? Does it state the specification version and the status? An answer without those is the failure this whole process exists to prevent.
 
+## What it found in Spike
+
+A specification lookup is useful. A specification lookup that finds a real bug in a simulator you already trust is more useful.
+
+I pointed the skill at Spike, the reference RISC-V simulator, and worked through extensions one at a time. The prompts are plain. Here is the shape of one:
+
+```
+Here is Spike's implementation of a Zalasr load, from riscv/insns/lw_aq.h:
+
+    require_extension(EXT_ZALASR);
+    WRITE_RD(MMU.load<int32_t>(RS1));
+
+Check it against the Zalasr specification. Does it handle a misaligned
+address correctly when Zicclsm is enabled?
+```
+
+The skill reads Zalasr from UDB and from the ratified text. Both state the same rule. The address must be naturally aligned, and a misaligned access raises `LoadAddressMisaligned` for a load, or `StoreAmoAddressMisaligned` for a store. Spike called `MMU.load<T>` with default translation flags. With Zicclsm enabled, the access split at the page boundary and completed. It returned data where the specification requires a trap.
+
+That became [issue #2392](https://github.com/riscv-software-src/riscv-isa-sim/issues/2392) and [pull request #2395](https://github.com/riscv-software-src/riscv-isa-sim/pull/2395).
+
+Three more came out of the same review:
+
+- `cm.popret` did not clear bit 0 of the popped return address. An odd address reached `advance_pc()`, matched no case, and fell through to `default: abort()`. The simulator process died instead of reporting a guest-visible trap. [Issue #2383](https://github.com/riscv-software-src/riscv-isa-sim/issues/2383), fixed in [#2385](https://github.com/riscv-software-src/riscv-isa-sim/pull/2385).
+- On RV64 with Zfinx, a single-precision result went to an `x` register zero-extended. The specification requires sign extension. Applying `fsgnj.s` to the bits of `-1.0f` produced `0x00000000bf800000` where `0xffffffffbf800000` is correct. [Issue #2390](https://github.com/riscv-software-src/riscv-isa-sim/issues/2390), fixed in [#2391](https://github.com/riscv-software-src/riscv-isa-sim/pull/2391).
+- Zabha and Zacas were not gated on `misa.A`. Fixed in [#2388](https://github.com/riscv-software-src/riscv-isa-sim/pull/2388).
+
+All four fixes are merged into Spike.
+
+The reusable form of the prompt is short:
+
+```
+Compare Spike's implementation of <extension> against the ratified spec and UDB.
+List anything the implementation allows that the specification forbids.
+```
+
+None of this needed deep simulator knowledge. It needed the sources read in the right order, and one question per extension. The skill makes that question cheap enough to ask again and again, which is where the value sits.
+
 ## What it will not do
 
 I want to be plain about the limits, because a tool that claims authority has to earn it.
 
-The source data can be wrong. In July 2026 UDB listed the Q extension as version 1.0.0 when the ratified version is 2.2.0, reported as issue #2068. The maintainers fixed it in six days, which says good things about the project. It also proves that a citation can be confidently wrong. The precedence ladder helps here, because status questions go to the ratified sources before UDB, but no ladder removes the risk completely.
+The source data can be wrong. In July 2026 UDB listed the Q extension as version 1.0.0 when the ratified version is 2.2.0, reported as [issue #2068](https://github.com/riscv/riscv-unified-db/issues/2068). The maintainers fixed it in six days, which says good things about the project. It also proves that a citation can be confidently wrong. The precedence ladder helps here, because status questions go to the ratified sources before UDB, but no ladder removes the risk completely.
 
 The skill is unofficial and not affiliated with RISC-V International. UDB describes its own generated specifications as unofficial, and I keep that label.
 
