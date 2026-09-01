@@ -7,7 +7,7 @@ Give your assistant a real debugging problem, the kind you hit during bring-up:
 
 Most assistants answer the question you asked. Many will agree with you, because you told them the reference simulator agrees, and that is strong evidence.
 
-A correct answer refuses your premise twice.
+A correct answer **refuses your premise twice**.
 
 First, the core is not compliant. The privileged specification defines `SD` as a read-only summary bit, set when `FS`, `XS` or `VS` reads Dirty. One escape exists. If all three fields are read-only zero, `SD` stays zero forever. Your core implements F, and the specification states that when F is implemented, `FS` shall not be read-only zero. The escape does not apply, so `FS==0b11` forces `SD` to 1.
 
@@ -18,6 +18,18 @@ Then comes the part you actually needed. On RV64, `SD` is bit 63. On RV32 it is 
 The assistant that agreed with you did not lie. It reasoned from what you gave it, with no way to read the specification text or the simulator source. This is the shape of most wrong answers about RISC-V. The model is not careless. It reads one source, or none, when a correct answer often needs four.
 
 I want to show you why that happens, and what a correct lookup process looks like. At the end I will show you a tool that does it, but the process matters more than the tool.
+
+**Contents**
+
+1. [RISC-V does not have one source of truth](#risc-v-does-not-have-one-source-of-truth)
+2. [Three traps that produce confident errors](#three-traps-that-produce-confident-errors)
+3. [The precedence ladder: which source wins](#the-precedence-ladder-which-source-wins)
+4. [Automating the ladder](#automating-the-ladder)
+5. [Setup in two commands](#setup-in-two-commands)
+6. [Prompts that exercise each layer](#prompts-that-exercise-each-layer)
+7. [What it found in Spike](#what-it-found-in-spike)
+8. [Where this breaks](#where-this-breaks)
+9. [A question for the UDB community](#a-question-for-the-udb-community)
 
 ## RISC-V does not have one source of truth
 
@@ -31,7 +43,7 @@ Most of us say "check the spec" as if one file answers everything. In practice y
 
 **The ratification records** close a gap the other three leave open. RISC-V ratifies an extension first and publishes it later. During that window the extension is genuinely ratified and genuinely missing from every manual. The Ratified Extensions wiki lists exactly those cases. Zalasr is the current example. RISC-V ratified it in October 2025, and any manual older than January 2026 has no chapter for it. Ask a model whether Zalasr is ratified, and a manual lookup answers no. The manual is not wrong. It is simply not the source that answers that question.
 
-Everything else is evidence, not truth. Spike, QEMU, GCC, LLVM, and your own RTL each describe one implementation. When a tool disagrees with the specification, the tool is the suspect.
+Everything else is evidence, not truth. Spike, QEMU, GCC, LLVM, and your own RTL each describe one implementation. When a tool disagrees with the specification, **the tool is the suspect**.
 
 ## Three traps that produce confident errors
 
@@ -43,7 +55,7 @@ I hit all three while building this. Each one produces an answer that sounds aut
 
 **Tools lag the specification.** Zalasr was ratified in October 2025. Today, `riscv-opcodes` still files it under `extensions/unratified/rv_zalasr`. If you read status from a toolchain, you inherit the toolchain's calendar rather than the standard's.
 
-## The precedence ladder
+## The precedence ladder: which source wins
 
 Once you accept four sources, the ordering does the real work. This is the rule I settled on:
 
@@ -56,19 +68,19 @@ Once you accept four sources, the ordering does the real work. This is the rule 
 
 One rule runs the other way. For a bit position or an encoding, prefer UDB even over the prose, for the fidelity reason above.
 
-You can apply this ladder by hand today, with no tooling. That alone will fix most wrong answers.
+You can apply this ladder by hand today, with no tooling. *That alone will fix most wrong answers.*
 
 ## Automating the ladder
 
 I encoded this process as a Claude skill, so the routing happens on every question instead of only when I remember it.
 
-![How the skill builds an answer](../docs/flow.svg)
+IMAGE-GOES-HERE
 
 The flow is small. The skill reads the question, decides which layer owns it, reads that source, applies the ladder, and answers with a citation. Encoding questions go to a local UDB clone. Wording, compliance, and non-ISA questions go to the ratified specifications. A specification that is not on disk is fetched once from docs.riscv.org and cached, so the second question about it costs no network.
 
-The answer contract is the part I care about most. Every answer must quote the source text verbatim, give a file path or a versioned URL with a section anchor, name the specification version, and state whether the extension is ratified, frozen, or draft. You should never have to trust the model. You should be able to click the link.
+The answer contract is the part I care about most. Every answer must quote the source text verbatim, give a file path or a versioned URL with a section anchor, name the specification version, and state whether the extension is ratified, frozen, or draft. You should never have to trust the model. *You should be able to click the link.*
 
-## Setup
+## Setup in two commands
 
 The repository is at [github.com/akifejaz/riscv-all-skill](https://github.com/akifejaz/riscv-all-skill).
 
@@ -92,7 +104,7 @@ export UDB_ROOT=~/riscv-unified-db
 
 The skill also works from Cursor or any client that reads `SKILL.md`.
 
-## Talking to it
+## Prompts that exercise each layer
 
 Ask in plain language. These are real prompts, and each one exercises a different layer.
 
@@ -118,10 +130,12 @@ The debugging question from the opening belongs in this list too. It is the case
 
 For the Zalasr question, the reply states the status first, then proves it:
 
-> **Ratified.** Version 1.0.0, ratification date 2025-10.
+> **Ratified.** Version 1.0.0, ratification date `2025-10`.
 >
 > Published chapter: `docs.riscv.org/reference/isa/v20260120/unpriv/zalasr.html`
+>
 > Preface status table, `src/unpriv/preface.adoc:167`: `|*Zalasr* |*1.0* |*Ratified*`
+>
 > UDB `spec/std/isa/ext/Zalasr.yaml`: `state: ratified`, `ratification_date: 2025-10`
 >
 > One source disagrees. `riscv-opcodes` still files Zalasr under `extensions/unratified/`. The tool lags the standard.
@@ -138,15 +152,13 @@ I pointed the skill at Spike, the reference RISC-V simulator, and worked through
 
 ```
 Here is Spike's implementation of a Zalasr load, from riscv/insns/lw_aq.h:
-
     require_extension(EXT_ZALASR);
     WRITE_RD(MMU.load<int32_t>(RS1));
-
 Check it against the Zalasr specification. Does it handle a misaligned
 address correctly when Zicclsm is enabled?
 ```
 
-The skill reads Zalasr from UDB and from the ratified text. Both state the same rule. The address must be naturally aligned, and a misaligned access raises `LoadAddressMisaligned` for a load, or `StoreAmoAddressMisaligned` for a store. Spike called `MMU.load<T>` with default translation flags. With Zicclsm enabled, the access split at the page boundary and completed. It returned data where the specification requires a trap.
+The skill reads Zalasr from UDB and from the ratified text. Both state the same rule. The address must be naturally aligned, and a misaligned access raises `LoadAddressMisaligned` for a load, or `StoreAmoAddressMisaligned` for a store. Spike called `MMU.load<T>` with default translation flags. With Zicclsm enabled, the access split at the page boundary and completed. **It returned data where the specification requires a trap.**
 
 That became [issue #2392](https://github.com/riscv-software-src/riscv-isa-sim/issues/2392) and [pull request #2395](https://github.com/riscv-software-src/riscv-isa-sim/pull/2395).
 
@@ -156,7 +168,7 @@ Three more came out of the same review:
 - On RV64 with Zfinx, a single-precision result went to an `x` register zero-extended. The specification requires sign extension. Applying `fsgnj.s` to the bits of `-1.0f` produced `0x00000000bf800000` where `0xffffffffbf800000` is correct. [Issue #2390](https://github.com/riscv-software-src/riscv-isa-sim/issues/2390), fixed in [#2391](https://github.com/riscv-software-src/riscv-isa-sim/pull/2391).
 - Zabha and Zacas were not gated on `misa.A`. Fixed in [#2388](https://github.com/riscv-software-src/riscv-isa-sim/pull/2388).
 
-All four fixes are merged into Spike.
+**All four fixes are merged into Spike.**
 
 The reusable form of the prompt is short:
 
@@ -167,7 +179,7 @@ List anything the implementation allows that the specification forbids.
 
 None of this needed deep simulator knowledge. It needed the sources read in the right order, and one question per extension. The skill makes that question cheap enough to ask again and again, which is where the value sits.
 
-## What it will not do
+## Where this breaks
 
 I want to be plain about the limits, because a tool that claims authority has to earn it.
 
