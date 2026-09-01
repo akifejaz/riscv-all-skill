@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" width="900" height="500" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="500" fill="#ffffff"/>
+
+  <!-- question -->
+  <rect x="240" y="14" width="200" height="42" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+  <text x="340" y="41" text-anchor="middle" font-size="15" fill="#0f172a">Your question</text>
+  <line x1="340" y1="56" x2="340" y2="80" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- router -->
+  <rect x="200" y="84" width="280" height="42" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+  <text x="340" y="111" text-anchor="middle" font-size="15" fill="#0f172a">Route by question type</text>
+
+  <line x1="300" y1="126" x2="185" y2="162" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="390" y1="126" x2="460" y2="162" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- UDB -->
+  <rect x="40" y="166" width="260" height="104" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.5"/>
+  <text x="170" y="192" text-anchor="middle" font-size="14.5" font-weight="600" fill="#312e81">Unified Database (UDB)</text>
+  <text x="170" y="214" text-anchor="middle" font-size="12.5" fill="#3730a3">local git clone</text>
+  <text x="170" y="238" text-anchor="middle" font-size="12.5" fill="#3730a3">encodings, CSR fields,</text>
+  <text x="170" y="256" text-anchor="middle" font-size="12.5" fill="#3730a3">parameters, profiles</text>
+
+  <!-- cache -->
+  <rect x="340" y="166" width="260" height="104" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+  <text x="470" y="192" text-anchor="middle" font-size="14.5" font-weight="600" fill="#064e3b">Ratified specifications</text>
+  <text x="470" y="214" text-anchor="middle" font-size="12.5" fill="#065f46">local cache</text>
+  <text x="470" y="238" text-anchor="middle" font-size="12.5" fill="#065f46">prose, SBI, psABI, debug,</text>
+  <text x="470" y="256" text-anchor="middle" font-size="12.5" fill="#065f46">AIA, IOMMU, profiles</text>
+
+  <!-- docs.riscv.org -->
+  <rect x="660" y="186" width="212" height="64" rx="8" fill="#f8fafc" stroke="#059669" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="766" y="211" text-anchor="middle" font-size="14" font-weight="600" fill="#064e3b">docs.riscv.org</text>
+  <text x="766" y="232" text-anchor="middle" font-size="12" fill="#065f46">versioned pages</text>
+  <line x1="656" y1="218" x2="606" y2="218" stroke="#059669" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="631" y="266" text-anchor="middle" font-size="11" fill="#047857">fetched once,</text>
+  <text x="631" y="280" text-anchor="middle" font-size="11" fill="#047857">then cached</text>
+
+  <!-- precedence -->
+  <line x1="170" y1="270" x2="265" y2="316" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="470" y1="270" x2="415" y2="316" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <rect x="170" y="320" width="340" height="52" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+  <text x="340" y="342" text-anchor="middle" font-size="14.5" font-weight="600" fill="#78350f">Precedence check</text>
+  <text x="340" y="362" text-anchor="middle" font-size="12" fill="#92400e">ratified prose wins on meaning, UDB wins on bits</text>
+
+  <!-- tools -->
+  <rect x="660" y="316" width="212" height="76" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="766" y="340" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">Spike, QEMU, GCC, RTL</text>
+  <text x="766" y="360" text-anchor="middle" font-size="11.5" fill="#64748b">evidence about one</text>
+  <text x="766" y="376" text-anchor="middle" font-size="11.5" fill="#64748b">implementation, never truth</text>
+  <line x1="656" y1="350" x2="516" y2="350" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#b)"/>
+
+  <!-- answer -->
+  <line x1="340" y1="372" x2="340" y2="404" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="120" y="408" width="440" height="76" rx="8" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.8"/>
+  <text x="340" y="432" text-anchor="middle" font-size="14.5" font-weight="600" fill="#0f172a">Answer</text>
+  <text x="340" y="453" text-anchor="middle" font-size="12.5" fill="#334155">verbatim quote, plus a file path or a versioned URL</text>
+  <text x="340" y="472" text-anchor="middle" font-size="12.5" fill="#334155">plus the spec version and the ratification status</text>
+</svg>
