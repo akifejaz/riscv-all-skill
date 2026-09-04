@@ -21,6 +21,7 @@ import argparse
 import hashlib
 import json
 import os
+import posixpath
 import re
 import sys
 import time
@@ -171,7 +172,13 @@ class _Text(HTMLParser):
 
 
 class _Links(HTMLParser):
-    """Collect same-component chapter links from an Antora page."""
+    """Collect relative chapter links from an Antora page.
+
+    Links that leave the site (absolute URLs, site-root paths) are dropped here.
+    A '..' prefix is kept, because Antora splits one spec across modules and links
+    between them that way. resolve_page() decides whether the target is still
+    inside the same spec version.
+    """
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -183,7 +190,7 @@ class _Links(HTMLParser):
         href = dict(attrs).get("href") or ""
         if not href.endswith(".html"):
             return
-        if "://" in href or href.startswith(("#", "..", "/")):
+        if "://" in href or href.startswith(("#", "/")):
             return
         self.hrefs.append(href.split("#")[0])
 
@@ -202,6 +209,23 @@ def chapter_links(html: str) -> list[str]:
         if href not in seen:
             seen.append(href)
     return seen
+
+
+def resolve_page(page: str, href: str) -> str | None:
+    """Resolve href against the directory of page. Return None if it escapes.
+
+    A page key is always relative to the spec version root, for example
+    'unpriv/rv64.html'. Its links are relative to its own directory, so 'rv64.html'
+    on the ISA manual index means 'unpriv/rv64.html', not 'rv64.html'. Joining the
+    raw href onto the version root gives HTTP 404 for every chapter.
+
+    Return None when the result climbs above the version root, which is how a link
+    to another spec, or to the site home, is rejected.
+    """
+    target = posixpath.normpath(posixpath.join(posixpath.dirname(page), href))
+    if target.startswith(("..", "/")):
+        return None
+    return target
 
 
 # ----------------------------------------------------------------------- version
@@ -331,8 +355,9 @@ def cmd_fetch(args, manifest) -> int:
         print(f"  {page:<44} {len(text):>8} chars")
         if args.all and mode == "html":
             for href in chapter_links(body):
-                if href not in done and href not in queue:
-                    queue.append(href)
+                target = resolve_page(page, href)
+                if target and target not in done and target not in queue:
+                    queue.append(target)
         if args.limit and len(done) >= args.limit:
             break
         time.sleep(args.delay)

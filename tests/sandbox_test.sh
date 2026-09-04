@@ -42,6 +42,19 @@ run "manifest is valid json"   0 "docs.riscv.org" -- python3 -c "import json;pri
 run "runs from read-only mount" 0 "sbi"       -- $S list
 run "help works"               0 "usage"       -- $S --help
 
+# A chapter link is relative to its own page, not to the spec version root. The
+# ISA manual is the only spec published in subdirectories, so it is the only one
+# that 404s when this is wrong.
+run "chapter link resolves"    0 "LINKS_OK"  -- python3 -c "
+import sys; sys.path.insert(0, '/skill/scripts')
+from riscv_docs import resolve_page as r
+assert r('unpriv/unpriv-index.html', 'rv64.html') == 'unpriv/rv64.html'
+assert r('unpriv/unpriv-index.html', '../priv/machine.html') == 'priv/machine.html'
+assert r('index.html', 'chapter.html') == 'chapter.html'
+assert r('unpriv/unpriv-index.html', '../../../home/index.html') is None
+assert r('index.html', '../escape.html') is None
+print('LINKS_OK')"
+
 echo "-- offline-safe commands (no network needed)"
 run "list runs"                0 "sbi"         -- $S list
 run "list marks uncached"      0 "not cached"  -- $S list
